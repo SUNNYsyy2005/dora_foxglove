@@ -1,0 +1,21 @@
+services:
+  base:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+      target: base
+
+
+  build:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+      target: build
+  
+  laser_scan_server:
+    build:
+       context: .
+       dockerfile: dev.Dockerfile
+       target: laser_scan_server
+    ports:
+      - "8765:8765"
