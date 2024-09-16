@@ -5,7 +5,6 @@ services:
       dockerfile: dev.Dockerfile
       target: base
 
-
   build:
     build:
       context: .
@@ -19,3 +18,4 @@ services:
        target: laser_scan_server
     ports:
       - "8765:8765"
+      - "8764:8764"

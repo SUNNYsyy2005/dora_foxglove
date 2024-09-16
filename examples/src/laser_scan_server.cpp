@@ -13,6 +13,7 @@
 #include <thread>
 #include <unordered_set>
 #include <cmath>
+#include "./LaserScan.h"
 #include "flatbuffers/flatbuffers.h"
 #include "LaserScan_generated.h"
 
@@ -39,12 +40,20 @@ static std::string getFileContents(std::string_view path) {
   infile.close();
   return result;
 }
+LaserScan receivedScan;
 int main(int argc, char** argv) {
     std::vector<std::string> args(argv, argv + argc);
     if (args.size() < 2) {
         std::cerr << "Usage: example_server_flatbuffers /path/to/SceneUpdate.bfbs" << std::endl;
         return 1;
     }
+    //接受LaserScan
+    std::thread receiver([&]() {
+        receivedScan = LaserScan::receiveLaserScan(8764);
+        
+    });
+    receiver.join();
+
     const auto& sceneUpdateBfbsPath = args[1];
     // 创建 WebSocket 服务器
     const auto logHandler = [](foxglove::WebSocketLogLevel, char const* msg) {
@@ -82,18 +91,21 @@ int main(int argc, char** argv) {
     while (running) {
         builder.Clear();
         const auto now = nanosecondsSinceEpoch();
-        auto timestamp = foxglove::Time(now / 1'000'000'000, now % 1'000'000'000);
-        auto frame_id = builder.CreateString("laser_frame");
+        int sec = receivedScan.header.stamp;
+        auto timestamp = foxglove::Time(receivedScan.header.stamp, receivedScan.header.stamp-sec);
+        auto frame_id = builder.CreateString(receivedScan.header.frame_id);
         auto pose = foxglove::CreatePose(
             builder, foxglove::CreateVector3(builder, 0, 0, 0),
             foxglove::CreateQuaternion(builder, 0, 0, 0, 1));
-        auto start_angle = 0.0;
-        auto end_angle = 2 * M_PI;
-        std::vector<double> ranges = {1.0, 2.0, 3.0}; // 示例范围数据
-        std::vector<double> intensities = {0.5, 0.6, 0.7}; // 示例强度数据
+        auto start_angle = receivedScan.angle_min;
+        auto end_angle = receivedScan.angle_max;
+        std::vector<float> ranges = receivedScan.ranges; // 示例范围数据
+        std::vector<double> dranges(ranges.begin(), ranges.end());
+        std::vector<float> intensities = receivedScan.intensities; // 示例强度数据
+        std::vector<double> dintensities(intensities.begin(), intensities.end());
 
-        auto ranges_vector = builder.CreateVector(ranges);
-        auto intensities_vector = builder.CreateVector(intensities);
+        auto ranges_vector = builder.CreateVector(dranges);
+        auto intensities_vector = builder.CreateVector(dintensities);
 
         auto laser_scan = foxglove::CreateLaserScan(
             builder, &timestamp, frame_id, pose, start_angle, end_angle, ranges_vector, intensities_vector);
