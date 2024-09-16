@@ -1,5 +1,8 @@
 # Dora-Foxglove Bridge by WebSocket protocol
 
+## Intruduction
+本项目采用Foxglove的WebSocket接口，将常见的ros消息类型，通过dora传给Foxglove进行可是化展示
+
 ## Instructions
 
 ### install dora
@@ -32,12 +35,16 @@ To accelate your speed, you can nano your /etc/docker/daemon.json
 ### build
 ```sh
 sudo make build
+cd dora/build
+cmake ..
+make
 ```
 
 
 ### run
 ```sh
 make laser_scan_server
-
+cd dora/build
+sudo ./bridge
 ```
 
