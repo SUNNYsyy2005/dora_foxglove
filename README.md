@@ -1,7 +1,8 @@
 # Dora-Foxglove Bridge by WebSocket protocol
 
 ## Intruduction
-本项目采用Foxglove的WebSocket接口，将常见的ros消息类型，通过dora传给Foxglove进行可是化展示
+本项目采用Foxglove的WebSocket接口，将常见的ros消息类型(LaserScan、PointCloud)，通过dora传给Foxglove进行可视化展示
+同时支持轨迹的可视化(轨迹定义为Pose数组)
 
 ## Instructions
 
@@ -31,6 +32,12 @@ To accelate your speed, you can nano your /etc/docker/daemon.json
     	"https://docker.m.daocloud.io"
   ]
 }
+```
+```sh
+sudo systemctl stop docker.socket
+sudo systemctl stop docker
+sudo systemctl start docker.socket
+sudo systemctl start docker
 ```
 ### build
 ```sh

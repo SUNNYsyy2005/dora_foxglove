@@ -2,6 +2,7 @@
 #include <cstring> // for std::memcpy
 #include <cstdint>
 #include <string>
+#include <boost/asio.hpp>
 #include <iostream>
 #include "./Header.h"
 class Vector3 {

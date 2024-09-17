@@ -134,7 +134,7 @@ int main(int argc, char** argv) {
     const auto channelIds3 = server->addChannels({{
     .topic = "path_msg",
     .encoding = "flatbuffer",
-    .schemaName = "foxglove.Path",
+    .schemaName = "foxglove.PosesInFrame",
     .schema = foxglove::base64Encode(getFileContents(scenePathBfbsPath)),
     }});
     // 创建 FlatBuffer 构建器
@@ -208,13 +208,13 @@ int main(int argc, char** argv) {
             foxglove::CreateQuaternion(builder3, 0, 0, 0, 1));
         // 设置 poses
         std::vector<flatbuffers::Offset<foxglove::Pose>> poses;
-        for (const auto& pose : receivedPath.poses) {
+        for (const auto& pose : receivedPath.points) {
             auto position = foxglove::CreateVector3(builder3, pose.position.x, pose.position.y, pose.position.z);
             auto orientation = foxglove::CreateQuaternion(builder3, pose.orientation.x, pose.orientation.y, pose.orientation.z, pose.orientation.w);
             poses.push_back(foxglove::CreatePose(builder3, position, orientation));
         }
         auto poses_vector = builder3.CreateVector(poses);
-        auto path = foxglove::CreatePath(builder3, &timestamp, frame_id, poses_vector);
+        auto path = foxglove::CreatePosesInFrame(builder3, &timestamp, frame_id, poses_vector);
         // 完成构建
         builder3.Finish(path);
         // 发送消息
